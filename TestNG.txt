@@ -1,0 +1,326 @@
+													TestNG Notes
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+01. TestNG execute test method based on alphabetical order
+02.@Test (Priority=num) controls the order of execution
+03. Once you assign the priority on the methods then the order of method is not considered 
+04.Priority can be any random number (no need to be consecutive number)
+05 if you don't provide the priority then the default values will be Zero(0)
+06.if the priority are same for 2 methods then it take default priority and execute 
+07 Negative values are allowed in TestNG priority 
+08.TestNG execute test methods only if they are having @Test annotation 
+ 
+ 
+How to execute test Case using XML file 
+Create an xlm file 
+
+GO to Claas Name for which you want to create XML
+Right click and GO to TestNG 
+Click on COnvert to TestNG 
+Select Location and SUte Name click on finish button 
+a new XML file will be create and it will be created on selected directory 
+
+
+TestNG Annotation 
+
+@Test
+
+
+@BeforeMethod 
+@AfterMethod 
+
+
+@BeforeClass 
+@AfterClass 
+
+@BeforewSuite 
+@AfterSuite 
+
+
+
+TC1
+----
+1. Login------------->BeforeMethod 
+2. Search------------> @Test 
+3. Logout------------>AfterMethod 
+4. Login ------------>BeforeMethod
+5. Advance search ---->@Test
+6. logout------------->AfterMethod 
+
+
+
+
+
+Assestion in TestNG
+by using assestion we can meke test pass or fail
+
+
+There are 2 type of assestion 
+1. Hard Assertion 
+2. Soft Assertion 
+
+
+Hard Assert it is an interface 
+
+Assert.Equalto();
+
+
+softAssert is class to use soft assert you need to create object of the softAsert class
+softAssert sfa=new softAssert();
+sfa.Equalto();
+
+
+what is dependent method 
+it is an annotation and it will be used on the method 
+
+@Test(priority=1)
+public void Test1(){
+syso("First Methods");
+}
+@Test(priority=1,dependentToMethod={Test1})
+public void Test2(){
+syso("Secand Test Method");
+}
+
+
+
+Grouping 
+--------------------
+by using include and exclude tag in xml we can handel grouping 
+
+to add any method in a group addd group tag on the Method 
+
+@Test(priority=1,group={"group_Name"})
+public vid Test1(){
+syso("This is the first test ")
+}
+@Test(priority=1,group={"group_Name"})
+public void Test2(){
+syso("This is the second test");
+}
+
+
+DataProvider
+--------------
+Data Provider is user to for Data Driven testing and for Paramiterision by using Data Provider we can execute the test functin multiple times 
+Data Provider Name should be Unique 
+
+
+@DataProvider(name="dp")
+Object [][] loginData(){
+		Object data[][]= {
+
+				{"abc@gmail.com","test123"},
+				{"xyz@gmail.com","test012"},
+				{"raju@gmail.com","test@123"},
+				{"ravi@gmail.com","test@123"},
+				{"vijay@gmail.com","test@1234"},
+				{"Admin","admin123"},
+				
+	};
+		
+		return data;
+}
+
+
+Test function 
+
+@Test(dataProvider="dp")
+void Test(String Email,String Password){
+	syso(Email +"id and Password is "+Password);
+}
+
+if want to run you test by not using all the data provided by data provider , then you can use specfic data from data provide by using "indices" in 
+data provider
+eg:
+
+Here we have provided 6 input and now i wanted to user only 2 so i will define using indices 
+@DataProvider(name="dp",indices={0,3,4})
+Object [][] loginData(){
+		Object data[][]= {
+
+				{"abc@gmail.com","test123"},
+				{"xyz@gmail.com","test012"},
+				{"raju@gmail.com","test@123"},
+				{"ravi@gmail.com","test@123"},
+				{"vijay@gmail.com","test@1234"},
+				{"Admin","admin123"},
+				
+	};
+		
+		return data;
+}
+ now i will use 0,3 and 4 when you execute the test function 
+
+
+
+TestNG Listner 
+---------------------------------
+Listner are the class which will run after the Test Method run 
+
+
+Listner class can be used in two way 
+
+1.By implementing the ITestListner interface
+Class  myListner implements ITestListner{
+
+}
+2.By extening the TestListnerAdapter
+Class myListner extends TestListnerAdapter{
+
+}
+
+
+we can run the Lister and Test Case both by using xmal file 
+
+<suite name="Suite">
+<listeners>
+<listener class-name="raju.selenium.myListner"></listener>
+</listeners>
+  <test thread-count="5" name="TestNGListner">
+    <classes>
+      <class name="raju.selenium.TestNGListner"/>
+    </classes>
+  </test> <!-- TestNGListner -->
+</suite> <!-- Suite -->
+
+if you do not want to run the Listner by using xaml the  you can do that by using TestNG annotation
+on Test Case class 
+
+@Listner(packagename.ClassName.Class)
+Classs TestCase{
+	Void TestMethod1(){
+
+}
+}
+
+
+Pgae Object Model 
+--------------------------
+Page Object model is a design patter 
+in POM we will divide locator and method in two different classes 
+In POI for every page we will create a sapreate class  and this callss will contain webelement and Action method 
+
+
+
+Test Case 
+----------
+locator 
+test Methods ---Code-----Validation+Action 
+
+Page Class
+--------------
+public class loginPage2 {
+	
+	WebDriver driver;
+	loginPage2(WebDriver driver){
+		this.driver=driver;
+		PageFactory.initElements(driver, this);
+	}
+	
+	@FindBy(xpath = "//input[@placeholder='Username']") WebElement txt_UserName;
+	@FindBy(xpath = "//input[@placeholder='Password']") WebElement txt_password;
+	@FindBy(xpath = "//button[normalize-space()='Login']") WebElement Login_button;
+	
+	
+	public  void setUserName(String userName) {
+		txt_UserName.sendKeys(userName);
+	}
+	public void SetPassword(String passwrd) {
+		txt_password.sendKeys(passwrd);
+	}
+	public void ClickLoginButton() {
+		Login_button.click();
+		
+	}
+}
+Other way to use page object is 
+------------------------------------
+public class loginPage {
+	//COnstructor 
+	WebDriver driver;
+	
+	loginPage(WebDriver driver){
+		this.driver=driver;
+	}
+	
+	//Locator 
+	By txt_UserName=By.xpath("//input[@placeholder='Username']");
+	By txt_password=By.xpath("//input[@placeholder='Password']");
+	By btn_loginbutton=By.xpath("//button[normalize-space()='Login']");
+	
+	//Action Methods
+	
+public void setUserName(String userName) {
+	driver.findElement(txt_UserName).sendKeys(userName);
+}
+public void setPassword(String password) {
+	driver.findElement(txt_password).sendKeys(password);
+}
+public void clickLoginButton() {
+	driver.findElement(btn_loginbutton).click();
+}
+	
+}
+
+Test Class
+---------------
+public class loginTest {
+	
+WebDriver driver;	
+ @BeforeClass
+	void setUp() {
+	 driver=new ChromeDriver();
+	 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+	 driver.manage().window().maximize();
+	 driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
+	 
+ }
+ @Test
+ void TestLogin() throws InterruptedException{
+	 loginPage2 lp=new loginPage2(driver);
+	 driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+	 lp.setUserName("Admin");
+	 lp.SetPassword("admin123");
+	 lp.ClickLoginButton();
+	 Assert.assertEquals(driver.getTitle(), "OrangeHRM");
+	 
+ }
+ 
+ @AfterClass
+ void tearDen() {
+	 driver.quit();
+ }
+}
+
+
+
+Automation Framework
+-----------------------------------
+we organize automation project files/folders in stractured manner
+
+Objective to buld a frame work 
+----------------------
+1. Re-usubility 
+2. Mantainabelity 
+3. Readability 
+
+Type of framework 
+---------------
+1.bultin framework
+	Eg:testNG,Junit,cucumber,roboot etc....
+2.customized(user defined )
+	Eg: Moudlar framework,data driven,keyword driven,hybrid driven 
+
+
+CI/CD
+---------------------------
+install the GIT in your local system 
+Create a new Account on the github 
+
+
+Working Directory 				Staging Area 		Git Repository			GIT
+				Add Command				Commit Command			Push Command
+Untracked File 	----------->Tracked File-------->Committed Files------------->Remote files
+
+
+	
